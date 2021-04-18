@@ -39,8 +39,11 @@ class OrderTest {
         when(clock.instant()).thenReturn(startTime).thenReturn(testTime);
 
         order.submit();
-
-        assertEquals(order.getOrderState(), Order.State.CANCELLED);
+        try {
+            order.confirm();
+        } catch (OrderExpiredException e) {
+            assertEquals(Order.State.CANCELLED, order.getOrderState());
+        }
     }
 
     @Test
@@ -52,5 +55,28 @@ class OrderTest {
         order.submit();
 
         assertThrows(OrderExpiredException.class, () -> order.confirm());
+    }
+
+    @Test
+    void whenValidHours_confirmOrderState() {
+        testTime = startTime.plus(Order.VALID_PERIOD_HOURS - 1, ChronoUnit.HOURS);
+
+        when(clock.instant()).thenReturn(startTime).thenReturn(testTime);
+
+        order.submit();
+        order.confirm();
+
+        assertEquals(Order.State.CONFIRMED, order.getOrderState());
+    }
+
+    @Test
+    void whenValidHours_exceptionNotThrown() {
+        testTime = startTime.plus(Order.VALID_PERIOD_HOURS - 1, ChronoUnit.HOURS);
+
+        when(clock.instant()).thenReturn(startTime).thenReturn(testTime);
+
+        order.submit();
+
+        assertDoesNotThrow(() -> order.confirm());
     }
 }
