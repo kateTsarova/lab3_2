@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Order {
 
-    private static final long VALID_PERIOD_HOURS = 24;
+    protected static final long VALID_PERIOD_HOURS = 24;
     private State orderState;
     private List<OrderItem> items = new ArrayList<>();
     private LocalDateTime subbmitionDate;
